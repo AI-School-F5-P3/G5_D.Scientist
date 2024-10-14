@@ -3,7 +3,8 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline, Memory
+from sklearn.pipeline import Pipeline
+from joblib import Memory
 import os
 import joblib
 
@@ -25,6 +26,7 @@ def create_preprocessing_pipeline():
     # Crear un objeto Memory para el caché
     memory = Memory(location=cache_dir, verbose=0)
 
+    # Crear los transformadores numéricos y categóricos con memory
     numeric_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='median')),
         ('scaler', StandardScaler())
@@ -35,25 +37,22 @@ def create_preprocessing_pipeline():
         ('onehot', OneHotEncoder(handle_unknown='ignore'))
     ], memory=memory)
 
+    # Crear el preprocesador con los transformadores
     preprocessor = ColumnTransformer(
         transformers=[
             ('num', numeric_transformer, numeric_features),
             ('cat', categorical_transformer, categorical_features)
         ])
 
-    # Crear un directorio para el caché si no existe
-    cache_dir = os.path.join('data', 'cache')
-    os.makedirs(cache_dir, exist_ok=True)
-    
-    # Crear un objeto Memory para el caché
-    memory = Memory(location=cache_dir, verbose=0)
+    # Crear el pipeline final con el argumento memory especificado
+    pipeline = Pipeline(steps=[('preprocessor', preprocessor)], memory=memory)
 
-    return Pipeline(steps=[('preprocessor', preprocessor)], memory=memory)
+    return pipeline
 
 def main():
     try:
         # Cargar datos
-        input_file = os.path.join('data', 'stroke_data.csv')
+        input_file = os.path.join('data', 'clean_stroke_data.csv')
         df = load_data(input_file)
 
         # Crear y ajustar el pipeline de preprocesamiento
@@ -71,7 +70,7 @@ def main():
 
         # Aplicar el preprocesamiento y guardar los datos preprocesados
         x_preprocessed = preprocess_pipeline.transform(X)
-        np.save(os.path.join(processed_dir, 'x_preprocessed.npy'), x_preprocessed)
+        np.save(os.path.join(processed_dir, 'X_preprocessed.npy'), x_preprocessed)
         np.save(os.path.join(processed_dir, 'y.npy'), y)
 
         print("Preprocesamiento completado y datos guardados.")
@@ -80,3 +79,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
