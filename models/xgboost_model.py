@@ -3,6 +3,7 @@ from sklearn.model_selection import RandomizedSearchCV, cross_val_score
 from sklearn.metrics import accuracy_score, f1_score, roc_auc_score, classification_report
 import numpy as np
 import matplotlib.pyplot as plt
+import joblib
 from .base_model import BaseModel
 
 class XGBoostModel(BaseModel):
@@ -109,14 +110,13 @@ class XGBoostModel(BaseModel):
         plt.show()
 
     def save_model(self, path=None):
-    """
-    Guarda el modelo entrenado en un archivo .joblib.
-    Si no se proporciona una ruta, usa un valor por defecto basado en model_name.
-    """
-    if not path:
-        path = f'{self.model_name}_model.joblib'
-    
-    # Guardar el modelo usando joblib
-    import joblib
-    joblib.dump(self.model, path)
+        """
+        Guarda el modelo entrenado en un archivo .joblib.
+        Si no se proporciona una ruta, usa un valor por defecto basado en model_name.
+        """
+        if not path:
+            path = f'{self.model_name}_model.joblib'
+        
+        # Guardar el modelo usando joblib
+        joblib.dump(self.model, path)
 

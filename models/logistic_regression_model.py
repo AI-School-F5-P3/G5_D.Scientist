@@ -1,5 +1,6 @@
 from sklearn.linear_model import LogisticRegression
-from base_model import BaseModel
+from .base_model import BaseModel
+
 
 class LogisticRegressionModel(BaseModel):
     def __init__(self, balance_classes=False, **kwargs):
