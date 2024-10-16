@@ -6,6 +6,7 @@ sys.path.append(project_root)
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, roc_auc_score, recall_score
+
 from imblearn.over_sampling import SMOTE, ADASYN
 from imblearn.under_sampling import RandomUnderSampler, TomekLinks
 from imblearn.combine import SMOTETomek, SMOTEENN
@@ -22,22 +23,21 @@ F1_SCORE = 'F1 Score'
 
 
 def balance_data(x, y, method):
-    if method == 'none':
-        return x, y
-    elif method == 'smote':
-        return SMOTE(random_state=42).fit_resample(x, y)
-    elif method == 'adasyn':
-        return ADASYN(random_state=42).fit_resample(x, y)
-    elif method == 'random_under':
-        return RandomUnderSampler(random_state=42).fit_resample(x, y)
-    elif method == 'tomek':
-        return TomekLinks().fit_resample(x, y)
-    elif method == 'smote_tomek':
-        return SMOTETomek(random_state=42).fit_resample(x, y)
-    elif method == 'smoteenn':
-        return SMOTEENN(random_state=42).fit_resample(x, y)
-    else:
-        raise ValueError("Método de balanceo no reconocido")
+    balancing_methods = {
+        'none': lambda x, y: (x, y),
+        'smote': SMOTE(random_state=42),
+        'adasyn': ADASYN(random_state=42),
+        'random_under': RandomUnderSampler(random_state=42),
+        'tomek': TomekLinks(),
+        'smote_tomek': SMOTETomek(random_state=42),
+        'smoteenn': SMOTEENN(random_state=42)
+    }
+    
+    if method not in balancing_methods:
+        raise ValueError(f"Método de balanceo '{method}' no reconocido")
+    
+    balancer = balancing_methods[method]
+    return balancer.fit_resample(x, y) if method != 'none' else balancer(x, y)
 
 def train_and_evaluate(x_train, x_test, y_train, y_test, model):
     start_time = time.time()
@@ -72,11 +72,14 @@ def main():
     
     # Definir modelos con y sin balanceo interno
     models = {
-        'Logistic Regression (no balance)': LogisticRegressionModel(balance_classes=False),
-        'Logistic Regression (balanced)': LogisticRegressionModel(balance_classes=True),
-        'Random Forest (no balance)': RandomForestModel(balance_classes=False),
-        'Random Forest (balanced)': RandomForestModel(balance_classes=True)
-    }
+    'Logistic Regression (no balance)': LogisticRegressionModel(balance_classes=False),
+    'Logistic Regression (balanced)': LogisticRegressionModel(balance_classes=True),
+    'Random Forest (no balance)': RandomForestModel(balance_classes=False),
+    'Random Forest (balanced)': RandomForestModel(balance_classes=True),
+    'XGBoost (default)': XGBClassifier(),
+    'XGBoost (scale_pos_weight)': XGBClassifier(scale_pos_weight=1)  # Ajusta este valor según tu relación de clases
+}
+    
     
     # Almacenar resultados
     results = []
@@ -124,7 +127,7 @@ def main():
     print(f"Results saved to {output_file}")
     print(results_df)
 
-    # Visualización de resultados (opcional)
+    # Visualización de resultados 
     plt.figure(figsize=(12, 6))
     sns.barplot(x=BALANCING_METHOD, y=F1_SCORE, hue='Model', data=results_df)
     plt.title('Comparación de F1 Score por Método de Balanceo y Modelo')
