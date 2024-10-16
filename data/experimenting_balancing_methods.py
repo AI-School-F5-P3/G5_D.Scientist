@@ -1,21 +1,25 @@
+import sys
+import os
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(project_root)
+
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, roc_auc_score, recall_score
 from imblearn.over_sampling import SMOTE, ADASYN
 from imblearn.under_sampling import RandomUnderSampler, TomekLinks
 from imblearn.combine import SMOTETomek, SMOTEENN
-import os
 import pandas as pd
 import time
 import seaborn as sns
 import matplotlib.pyplot as plt
+from models import RandomForestModel, LogisticRegressionModel, XGBoostModel
 
 # Definir constantes para evitar duplicación de cadenas
 BALANCING_METHOD = 'Balancing Method'
 F1_SCORE = 'F1 Score'
 
-# Importar los modelos modificados
-from models import RandomForestModel, LogisticRegressionModel
+
 
 def balance_data(x, y, method):
     if method == 'none':
@@ -56,8 +60,9 @@ def train_and_evaluate(x_train, x_test, y_train, y_test, model):
 
 def main():
     # Cargar datos preprocesados
-    X = np.load(os.path.join('data', 'processed', 'X_preprocessed.npy'))
-    y = np.load(os.path.join('data', 'processed', 'y.npy'))
+    X = np.load(os.path.join('data', 'processed', 'x_preprocessed.npy'))
+    y = np.load(os.path.join('data', 'processed', 'y_train.npy'))  # Asegúrate de que y_train sea la variable objetivo
+
     
     # Dividir en conjuntos de entrenamiento y prueba
     x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)

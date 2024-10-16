@@ -1,78 +1,106 @@
 import numpy as np
-from models.logistic_regression_model import LogisticRegressionModel
-from models.random_forest_model import RandomForestModel
-from models.xgboost_model import XGBoostModel
 import os
-import time
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, f1_score, roc_auc_score, recall_score
 import pandas as pd
-
-# Definir constantes para evitar duplicación de cadenas
-BALANCING_METHOD = 'Balancing Method'
-F1_SCORE = 'F1 Score'
+import matplotlib.pyplot as plt
+from models import RandomForestModel, LogisticRegressionModel, XGBoostModel
 
 def load_data():
-    """
-    Carga los datos de entrenamiento y prueba desde archivos .npy.
-    """
-    x_train = np.load(os.path.join('data', 'interim', 'x_train.npy'))
-    x_test = np.load(os.path.join('data', 'interim', 'x_test.npy'))
-    y_train = np.load(os.path.join('data', 'interim', 'y_train.npy'))
-    y_test = np.load(os.path.join('data', 'interim', 'y_test.npy'))
-    return x_train, x_test, y_train, y_test
+    X = np.load(os.path.join('data', 'processed', 'X_preprocessed.npy'))
+    y = np.load(os.path.join('data', 'processed', 'y.npy'))
+    return X, y
+
+def train_and_evaluate(x_train, x_test, y_train, y_test, model):
+    model.train(x_train, y_train)
+    y_pred = model.model.predict(x_test)
+    
+    accuracy = accuracy_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred)
+    recall = recall_score(y_test, y_pred)
+    
+    if hasattr(model.model, "predict_proba"):
+        auc_roc = roc_auc_score(y_test, model.model.predict_proba(x_test)[:, 1])
+    else:
+        auc_roc = None
+    
+    return accuracy, f1, recall, auc_roc
+
+def save_results_to_csv(results_df, filename):
+    os.makedirs('results', exist_ok=True)
+    filepath = os.path.join('results', filename)
+    results_df.to_csv(filepath, index=False)
+    print(f"Results saved to {filepath}")
+
+def plot_results(results_df):
+    metrics = ['Accuracy', 'F1 Score', 'Recall', 'AUC-ROC']
+    n_metrics = len(metrics)
+    n_models = len(results_df)
+    
+    fig, axes = plt.subplots(2, 2, figsize=(15, 15))
+    axes = axes.flatten()
+    
+    bar_width = 0.25
+    index = np.arange(n_models)
+    
+    for i, metric in enumerate(metrics):
+        axes[i].bar(index, results_df[metric], bar_width, label=metric)
+        axes[i].set_xlabel('Models')
+        axes[i].set_ylabel(metric)
+        axes[i].set_title(f'{metric} Comparison')
+        axes[i].set_xticks(index)
+        axes[i].set_xticklabels(results_df['Model'], rotation=45)
+    
+    plt.tight_layout()
+    os.makedirs('results', exist_ok=True)
+    plt.savefig(os.path.join('results', 'model_comparison.png'))
+    print("Comparison plot saved to results/model_comparison.png")
 
 def main():
-    """
-    Función principal para entrenar y evaluar varios modelos de machine learning.
-    """
     # Cargar los datos
-    x_train, x_test, y_train, y_test = load_data()
-
-    # Inicializamos los modelos a entrenar
-    models = [
-        LogisticRegressionModel(balance_classes=True),  # Regresión logística con balanceo interno
-        RandomForestModel(n_estimators=100, max_depth=10),  # Random Forest con hiperparámetros ajustados
-        XGBoostModel()  # XGBoost con búsqueda aleatoria de hiperparámetros
-    ]
-
-    # Almacenar los resultados
+    X, y = load_data()
+    
+    # Dividir los datos en conjuntos de entrenamiento y prueba
+    x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    print("Datos cargados y divididos exitosamente.")
+    print(f"Forma de x_train: {x_train.shape}")
+    print(f"Forma de x_test: {x_test.shape}")
+    print(f"Forma de y_train: {y_train.shape}")
+    print(f"Forma de y_test: {y_test.shape}")
+    
+    # Definir modelos
+    models = {
+        'Logistic Regression': LogisticRegressionModel(balance_classes=True),
+        'Random Forest': RandomForestModel(balance_classes=True),
+        'XGBoost': XGBoostModel(balance_classes=True)
+    }
+    
+    # Entrenar y evaluar modelos
     results = []
-
-    # Iteramos sobre cada modelo, entrenamos, evaluamos y guardamos los resultados
-    for model in models:
-        print(f"\nTraining and evaluating {model.model_name}...")
-
-        # Medimos el tiempo de entrenamiento
-        start_time = time.time()
-        model.train(x_train, y_train)  # Entrenamos el modelo
-        training_duration = time.time() - start_time  # Tiempo de entrenamiento
-
-        # Evaluamos el modelo en el conjunto de prueba
-        accuracy, f1, auc_roc = model.evaluate(x_test, y_test)
-
-        # Agregar los resultados a la lista
+    for model_name, model in models.items():
+        print(f"\nEntrenando y evaluando {model_name}...")
+        accuracy, f1, recall, auc_roc = train_and_evaluate(x_train, x_test, y_train, y_test, model)
         results.append({
-            BALANCING_METHOD: 'None',  # Puedes personalizar este valor si tienes métodos de balanceo
-            'Model': model.model_name,
+            'Model': model_name,
             'Accuracy': accuracy,
-            F1_SCORE: f1,
-            'AUC-ROC': auc_roc,
-            'Training Time (s)': training_duration
+            'F1 Score': f1,
+            'Recall': recall,
+            'AUC-ROC': auc_roc
         })
-
-        # Guardar el modelo entrenado (sin especificar path, usa el por defecto)
-        model.save_model()
-
-    # Guardar resultados en un archivo CSV
+    
+    # Crear DataFrame con resultados
     results_df = pd.DataFrame(results)
-    output_file = os.path.join('results', 'model_performance.csv')
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)  # Crear la carpeta si no existe
-    results_df.to_csv(output_file, index=False)
-    print(f"Results saved to {output_file}")
-
-    # Graficar la importancia de las características para el modelo XGBoost
-    xgb_model = [m for m in models if isinstance(m, XGBoostModel)][0]
-    feature_names = [f"feature_{i}" for i in range(x_train.shape[1])]  # Nombres ficticios
-    xgb_model.plot_feature_importance(feature_names)
+    
+    # Mostrar resultados en la terminal
+    print("\nResultados de los modelos:")
+    print(results_df)
+    
+    # Guardar resultados en CSV
+    save_results_to_csv(results_df, 'model_results.csv')
+    
+    # Crear y guardar visualización
+    plot_results(results_df)
 
 if __name__ == "__main__":
     main()
