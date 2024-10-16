@@ -14,6 +14,7 @@ import pandas as pd
 import time
 import seaborn as sns
 import matplotlib.pyplot as plt
+from xgboost import XGBClassifier
 from models import RandomForestModel, LogisticRegressionModel, XGBoostModel
 
 # Definir constantes para evitar duplicación de cadenas
