@@ -1,2 +1,2 @@
 # G5_D.Scientist
-Project to predict ictus risk.
+Project to predict stroke risk.
