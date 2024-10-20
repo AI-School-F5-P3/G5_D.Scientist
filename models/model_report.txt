@@ -1,0 +1,7 @@
+Informe del modelo:
+
+Precisi�n: 0.90
+Recall (clase 1): 0.30
+F1-Score (clase 1): 0.29
+AUC-ROC: 0.82
+
