@@ -1,0 +1,11 @@
+Género,Edad,Hipertensión,Enfermedad cardíaca,Nivel promedio de glucosa,Estado de fumador,output,flag,username,timestamp
+Female,79,true,true,210,smokes,"La probabilidad de ictus es: 61.29%
+Se recomienda consultar a un médico.",,,2024-10-23 12:19:34.700724
+Female,77,true,true,220,smokes,"La probabilidad de ictus es: 60.99%
+Se recomienda consultar a un médico.",,,2024-10-23 12:58:13.838940
+Male,50,true,false,100,never smoked,"La probabilidad de ictus es: 13.66%
+El riesgo parece ser bajo, pero siempre es bueno mantener hábitos saludables.",,,2024-10-23 13:02:36.436684
+Female,66,true,true,245,smokes,"La probabilidad de ictus es: 61.60%
+Se recomienda consultar a un médico.",,,2024-10-23 13:13:03.800585
+Male,75,true,true,240,smokes,"La probabilidad de ictus es: 63.00%
+Se recomienda consultar a un médico.",,,2024-10-23 13:35:48.022758
