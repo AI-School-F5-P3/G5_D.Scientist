@@ -1,10 +1,19 @@
+import sys
+import os
+# Ajustar el sys.path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
 import joblib
 import numpy as np
 import pandas as pd
 import gradio as gr
+from database.db_operations import insert_prediction
 
 # Cargar el modelo
-model = joblib.load('best_ensemble_model.joblib')
+model = joblib.load(r'C:\Users\busin\Desktop\mode_ic\models\best_ensemble_model.joblib')
 
 # Definir el orden correcto de las columnas
 column_order = ['gender', 'age', 'hypertension', 'heart_disease', 'avg_glucose_level', 'smoking_status']
@@ -39,11 +48,33 @@ def predict_stroke(gender, age, hypertension, heart_disease, avg_glucose_level, 
     prediction = model.predict_proba(input_df)[0]
     stroke_probability = prediction[1]
 
+    # Redondear stroke_probability a dos decimales
+    stroke_probability = round(stroke_probability, 2)
+
     result = f"La probabilidad de ictus es: {stroke_probability:.2%}\n"
     if stroke_probability > 0.5:
         result += "Se recomienda consultar a un médico."
     else:
         result += "El riesgo parece ser bajo, pero siempre es bueno mantener hábitos saludables."
+
+    try: 
+        # Preparar los datos para insertar en la base de datos
+        data_values = (
+            gender,
+            age,
+            int(hypertension),
+            int(heart_disease),
+            avg_glucose_level,
+            smoking_status,
+            stroke_probability 
+        )
+
+        # Insertar los datos en la base de datos
+        print("Antes de insertar en la base de datos")
+        insert_prediction(data_values)
+        print("Después de insertar en la base de datos")
+    except Exception as e:
+        print(f"Error al insertar en la base de datos: {e}")
 
     return result
 
@@ -64,4 +95,5 @@ iface = gr.Interface(
 )
 
 # Lanzar la interfaz
-iface.launch()
+if __name__=="__main__":
+    iface.launch()
