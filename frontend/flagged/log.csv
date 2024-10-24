@@ -9,3 +9,17 @@ Female,66,true,true,245,smokes,"La probabilidad de ictus es: 61.60%
 Se recomienda consultar a un médico.",,,2024-10-23 13:13:03.800585
 Male,75,true,true,240,smokes,"La probabilidad de ictus es: 63.00%
 Se recomienda consultar a un médico.",,,2024-10-23 13:35:48.022758
+Female,29,true,true,250,smokes,"La probabilidad de ictus es: 22.00%
+El riesgo parece ser bajo, pero siempre es bueno mantener hábitos saludables.",,,2024-10-23 18:32:49.885075
+Female,83,true,true,250,smokes,"La probabilidad de ictus es: 66.00%
+Se recomienda consultar a un médico.",,,2024-10-23 18:34:14.420065
+Female,66,true,true,230,never smoked,"La probabilidad de ictus es: 58.00%
+Se recomienda consultar a un médico.",,,2024-10-24 08:56:12.980674
+Female,89,true,true,230,formerly smoked,"La probabilidad de ictus es: 63.00%
+Se recomienda consultar a un médico.",,,2024-10-24 12:51:11.078108
+Female,33,false,false,90,never smoked,"La probabilidad de ictus es: 7.00%
+El riesgo parece ser bajo, pero siempre es bueno mantener hábitos saludables.",,,2024-10-24 12:52:46.285867
+Female,33,false,false,250,never smoked,"La probabilidad de ictus es: 18.00%
+El riesgo parece ser bajo, pero siempre es bueno mantener hábitos saludables.",,,2024-10-24 12:53:17.552246
+Female,84,true,true,250,formerly smoked,"La probabilidad de ictus es: 65.00%
+Se recomienda consultar a un médico.",,,2024-10-24 12:53:38.893249
