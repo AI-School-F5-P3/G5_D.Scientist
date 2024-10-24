@@ -10,7 +10,7 @@ load_dotenv()
 def get_db_connection():
     try:
         # Obtener las variables de entorno necesarias
-        db_host = os.environ.get("DB_HOST", "localhost")
+        db_host = os.environ.get("DB_HOST")
         db_user = os.environ.get("DB_USER")
         db_password = os.environ.get("DB_PASSWORD")
         db_name = os.environ.get("DB_NAME")
