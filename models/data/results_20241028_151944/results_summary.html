@@ -1,0 +1,78 @@
+
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .results-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .metrics-table {
+            margin-bottom: 30px;
+        }
+        .visualizations {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="results-container">
+        <h2>Model Evaluation Results</h2>
+        <div class="metrics-table">
+            <table>
+<thead>
+<tr><th>Dataset   </th><th style="text-align: right;">  Accuracy</th><th style="text-align: right;">  ROC-AUC</th><th style="text-align: right;">  Recall</th><th style="text-align: right;">  F1-Score</th></tr>
+</thead>
+<tbody>
+<tr><td>Training  </td><td style="text-align: right;">    0.8502</td><td style="text-align: right;">   0.9242</td><td style="text-align: right;">  0.8842</td><td style="text-align: right;">    0.8543</td></tr>
+<tr><td>Validation</td><td style="text-align: right;">    0.8299</td><td style="text-align: right;">   0.8966</td><td style="text-align: right;">  0.8712</td><td style="text-align: right;">    0.8303</td></tr>
+<tr><td>Test      </td><td style="text-align: right;">    0.8319</td><td style="text-align: right;">   0.8978</td><td style="text-align: right;">  0.8862</td><td style="text-align: right;">    0.8488</td></tr>
+</tbody>
+</table>
+        </div>
+        
+        <h2>Visualizations</h2>
+        <div class="visualizations">
+            <div>
+                <h3>Training and Validation Loss</h3>
+                <img src="loss_curves.png" alt="Loss Curves">
+            </div>
+            <div>
+                <h3>Training Set Confusion Matrix</h3>
+                <img src="training_confusion_matrix.png" alt="Training Confusion Matrix">
+            </div>
+            <div>
+                <h3>Validation Set Confusion Matrix</h3>
+                <img src="validation_confusion_matrix.png" alt="Validation Confusion Matrix">
+            </div>
+            <div>
+                <h3>Test Set Confusion Matrix</h3>
+                <img src="test_confusion_matrix.png" alt="Test Confusion Matrix">
+            </div>
+        </div>
+    </div>
+</body>
+</html>
