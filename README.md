@@ -26,9 +26,36 @@ El proyecto está dividido en los siguientes módulos:
 3. **API de Predicción**: implementación de una API con FastAPI que recibe los datos de entrada y devuelve la predicción.
 4. **Almacenamiento de Predicciones**: integración con una base de datos PostgreSQL para almacenar las predicciones y auditorías.
 5. **Monitorización**: registros de las predicciones con MLFlow para seguimiento y análisis de rendimiento.
-6. **Autenticación y Autorización**: el directorio `auth` gestiona la autenticación mediante JWT, garantizando acceso seguro a la API.
+6. **Autenticación y Autorización**: el directorio `auth` gestiona la autenticación mediante JWT, garantizando acceso
+seguro a la API.
 
 ## Estructura del Proyecto
+G5_D.Scientis/
+├── data/
+│   ├── EDA_final.ipynb              # Análisis Exploratorio de Datos
+│   └── processor.py                 # Preprocesamiento y transformación de datos
+├── models/
+│   └── best_ensemble_model.joblib   # Modelo entrenado guardado
+├── auth/
+│   ├── auth_bearer.py               # Autenticación basada en tokens Bearer
+│   └── auth_handler.py              # Generación y verificación de tokens JWT
+├── database/
+│   ├── db_connection.py             # Configuración de conexión a PostgreSQL
+│   └── db_operations.py             # Funciones de operación para la base de datos
+├── tests/
+│   ├── test_api.py                  # Pruebas para la API de predicción
+│   ├── test_db_connection.py        # Pruebas de conexión a la base de datos
+│   ├── test_db_operations.py        # Pruebas de operaciones de la base de datos
+│   └── test_main.py                 # Pruebas de la función principal de predicción
+├── api.py                           # API para realizar predicciones de riesgo de ictus
+├── main.py                          # Script principal de ejecución del modelo en Gradio
+├── stroke_prediction_mlflow.py      # Script para monitorizar el modelo en MLflow
+├── prometheus.yml                   # Configuración de Prometheus para monitorización
+├── load_test.py                     # Pruebas de carga con Locust
+├── README.md                        # Descripción y guía del proyecto
+└── .env.example                     # Ejemplo de configuración de variables de entorno
+
+
 - `data/`: contiene el script de preprocesamiento y análisis de datos.
 - `models/`: almacenamiento de modelos entrenados.
 - `api.py`: definición de la API de predicción.
