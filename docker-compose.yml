@@ -1,30 +1,79 @@
-version: '3.'
+version: '3.8'
 
 services:
-  database:
-    build: ./database
-    volumes:
-      - .data:/data
-      environment:
-        - POSTGRES_DB=
-        - POSTGRES_USER=
-        - POSTGRES_PASSWORD=
-
-  backend:
-    build: .
-    depends_on:
-      - database
-    volumes:
-      - ./models:
-    environment:
-      - DATABASE_URL=postgres://user:password@database/mydb
-
-  frontend:
-    build: ./frontend
+  # Servicio de la API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      -''
-      depends_on:
-      - backend
-  
-  Volumes:
-    data:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/stroke_db
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    volumes:
+      - ./models:/app/models
+      - ./data:/app/data
+    depends_on:
+      - db
+      - mlflow
+    networks:
+      - app-network
+
+  # Servicio del Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    networks:
+      - app-network
+
+  # Servicio de Base de Datos
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=stroke_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+  # Servicio MLflow
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.10.2
+    ports:
+      - "5000:5000"
+    command: mlflow server --host 0.0.0.0
+    environment:
+      - MLFLOW_TRACKING_URI=/mlflow
+    volumes:
+      - ./mlruns:/mlruns
+    networks:
+      - app-network
+
+  # Servicio Prometheus para monitoreo
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+  prometheus_data:
+
+networks:
+  app-network:
+    driver: bridge
