@@ -2,9 +2,17 @@ import joblib
 import numpy as np
 import pandas as pd
 import gradio as gr
+from pathlib import Path
+from database.db_operations import insert_prediction
+import os
+from dotenv import load_dotenv
+
+
+# Cargar variables de entorno explícitamente en main.py
+load_dotenv()
 
 # Cargar el modelo
-model = joblib.load('best_ensemble_model.joblib')
+model = joblib.load('models/best_ensemble_model.joblib')
 
 # Definir el orden correcto de las columnas
 column_order = ['gender', 'age', 'hypertension', 'heart_disease', 'avg_glucose_level', 'smoking_status']
@@ -15,15 +23,15 @@ smoking_status_map = {'formerly smoked': 0, 'never smoked': 1, 'smokes': 2}
 
 def predict_stroke(gender, age, hypertension, heart_disease, avg_glucose_level, smoking_status):
     # Codificar variables categóricas
-    gender_encoded = gender_map.get(gender, -1)  # -1 para valores desconocidos
-    smoking_status_encoded = smoking_status_map.get(smoking_status, -1)  # -1 para valores desconocidos
-
+    gender_encoded = gender_map.get(gender, -1)
+    smoking_status_encoded = smoking_status_map.get(smoking_status, -1)
+    
     # Crear un diccionario con los datos de entrada
     input_data = {
         'gender': gender_encoded,
         'age': age,
-        'hypertension': int(hypertension),
-        'heart_disease': int(heart_disease),
+        'hypertension': bool(hypertension),
+        'heart_disease': bool(heart_disease),
         'avg_glucose_level': avg_glucose_level,
         'smoking_status': smoking_status_encoded
     }
@@ -39,11 +47,34 @@ def predict_stroke(gender, age, hypertension, heart_disease, avg_glucose_level, 
     prediction = model.predict_proba(input_df)[0]
     stroke_probability = prediction[1]
 
+    # Redondear y convertir stroke_probability a float estándar de Python
+    stroke_probability = float(round(stroke_probability, 2))
+
+
     result = f"La probabilidad de ictus es: {stroke_probability:.2%}\n"
     if stroke_probability > 0.5:
         result += "Se recomienda consultar a un médico."
     else:
         result += "El riesgo parece ser bajo, pero siempre es bueno mantener hábitos saludables."
+    
+    try:
+        # Preparar los datos para la inserción en la base de datos (verifica asignación de `data_values`)
+        data_values = (
+            gender,
+            age,
+            bool(hypertension),
+            bool(heart_disease),
+            avg_glucose_level,
+            smoking_status,
+            stroke_probability
+        )
+        print("data_values definido:", data_values)
+
+        # Insertar la predicción en la base de datos PostgreSQL
+        insert_prediction(data_values)
+        print("Después de intentar insertar en la base de datos")
+    except Exception as e:
+        print(f"Error al intentar insertar en la base de datos: {e}")
 
     return result
 
@@ -60,8 +91,10 @@ iface = gr.Interface(
     ],
     outputs="text",
     title="Predictor de Riesgo de Ictus",
-    description="Introduce los datos del paciente para evaluar el riesgo de ictus."
+    description="Introduce los datos del paciente para evaluar el riesgo de ictus.",
+    allow_flagging="manual"  # Permitir el guardado en log.csv manualmente al marcar el resultado
 )
 
 # Lanzar la interfaz
-iface.launch()
+if __name__ == "__main__":
+    iface.launch(debug=True)
