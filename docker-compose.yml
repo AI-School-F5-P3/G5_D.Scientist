@@ -1,0 +1,30 @@
+version: '3.'
+
+services:
+  database:
+    build: ./database
+    volumes:
+      - .data:/data
+      environment:
+        - POSTGRES_DB=
+        - POSTGRES_USER=
+        - POSTGRES_PASSWORD=
+
+  backend:
+    build: .
+    depends_on:
+      - database
+    volumes:
+      - ./models:
+    environment:
+      - DATABASE_URL=postgres://user:password@database/mydb
+
+  frontend:
+    build: ./frontend
+    ports:
+      -''
+      depends_on:
+      - backend
+  
+  Volumes:
+    data:
