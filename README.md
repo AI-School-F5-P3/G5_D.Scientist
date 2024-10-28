@@ -30,32 +30,6 @@ El proyecto está dividido en los siguientes módulos:
 seguro a la API.
 
 ## Estructura del Proyecto
-G5_D.Scientis/
-├── data/
-│   ├── EDA_final.ipynb              # Análisis Exploratorio de Datos
-│   └── processor.py                 # Preprocesamiento y transformación de datos
-├── models/
-│   └── best_ensemble_model.joblib   # Modelo entrenado guardado
-├── auth/
-│   ├── auth_bearer.py               # Autenticación basada en tokens Bearer
-│   └── auth_handler.py              # Generación y verificación de tokens JWT
-├── database/
-│   ├── db_connection.py             # Configuración de conexión a PostgreSQL
-│   └── db_operations.py             # Funciones de operación para la base de datos
-├── tests/
-│   ├── test_api.py                  # Pruebas para la API de predicción
-│   ├── test_db_connection.py        # Pruebas de conexión a la base de datos
-│   ├── test_db_operations.py        # Pruebas de operaciones de la base de datos
-│   └── test_main.py                 # Pruebas de la función principal de predicción
-├── api.py                           # API para realizar predicciones de riesgo de ictus
-├── main.py                          # Script principal de ejecución del modelo en Gradio
-├── stroke_prediction_mlflow.py      # Script para monitorizar el modelo en MLflow
-├── prometheus.yml                   # Configuración de Prometheus para monitorización
-├── load_test.py                     # Pruebas de carga con Locust
-├── README.md                        # Descripción y guía del proyecto
-└── .env.example                     # Ejemplo de configuración de variables de entorno
-
-
 - `data/`: contiene el script de preprocesamiento y análisis de datos.
 - `models/`: almacenamiento de modelos entrenados.
 - `api.py`: definición de la API de predicción.
@@ -103,7 +77,7 @@ Especifica las credenciales de conexión a la base de datos y la configuración 
 1. Clona el repositorio y navega al directorio del proyecto.
    ```bash
    git clone <URL_DEL_REPOSITORIO>
-   cd PROYECTODATASCIENTIST
+   cd G5_D.Scientist
    ```
 2. Instala los paquetes requeridos.
    ```bash
