@@ -24,16 +24,14 @@ El proyecto está dividido en los siguientes módulos:
 1. **Preprocesamiento y EDA**: análisis exploratorio de los datos, tratamiento de valores faltantes y codificación de variables categóricas.
 2. **Modelado**: entrenamiento y ajuste del modelo usando algoritmos como Random Forest, CatBoost y XGBoost.
 3. **API de Predicción**: implementación de una API con FastAPI que recibe los datos de entrada y devuelve la predicción.
-4. **Frontend (Gradio)**: interfaz de usuario para ingresar datos de pacientes y visualizar la probabilidad de ictus.
-5. **Almacenamiento de Predicciones**: integración con una base de datos PostgreSQL para almacenar las predicciones y auditorías.
-6. **Monitorización**: registros de las predicciones con MLFlow para seguimiento y análisis de rendimiento.
-7. **Autenticación y Autorización**: el directorio `auth` gestiona la autenticación mediante JWT, garantizando acceso seguro a la API.
+4. **Almacenamiento de Predicciones**: integración con una base de datos PostgreSQL para almacenar las predicciones y auditorías.
+5. **Monitorización**: registros de las predicciones con MLFlow para seguimiento y análisis de rendimiento.
+6. **Autenticación y Autorización**: el directorio `auth` gestiona la autenticación mediante JWT, garantizando acceso seguro a la API.
 
 ## Estructura del Proyecto
 - `data/`: contiene el script de preprocesamiento y análisis de datos.
 - `models/`: almacenamiento de modelos entrenados.
 - `api.py`: definición de la API de predicción.
-- `frontend/`: contiene el código de la interfaz de usuario desarrollada con Gradio.
 - `database/`: módulos para la conexión y operaciones en la base de datos PostgreSQL.
 - `auth/`: gestiona la autenticación y autorización mediante tokens JWT.
 - `tests/`: pruebas unitarias y de integración para asegurar el correcto funcionamiento de cada módulo.
