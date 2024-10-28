@@ -22,7 +22,7 @@ Se ha implementado un modelo de aprendizaje supervisado para clasificar el riesg
 ## Arquitectura
 El proyecto está dividido en los siguientes módulos:
 1. **Preprocesamiento y EDA**: análisis exploratorio de los datos, tratamiento de valores faltantes y codificación de variables categóricas.
-2. **Modelado**: entrenamiento y ajuste del modelo usando algoritmos como Random Forest, CatBoost y XGBoost.
+2. **Modelado**: entrenamiento y ajuste del modelo usando algoritmos como Regresión Logística, Random Forest, Naves Bayes y SVM. También se ha entrenado un modelo de red neuronal para compararlo con los modelos tradicionales.
 3. **API de Predicción**: implementación de una API con FastAPI que recibe los datos de entrada y devuelve la predicción.
 4. **Almacenamiento de Predicciones**: integración con una base de datos PostgreSQL para almacenar las predicciones y auditorías.
 5. **Monitorización**: registros de las predicciones con MLFlow para seguimiento y análisis de rendimiento.
