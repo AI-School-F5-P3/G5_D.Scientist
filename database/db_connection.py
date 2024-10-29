@@ -8,25 +8,16 @@ load_dotenv()
 def get_db_connection():
     """
     Establece y retorna una conexión a la base de datos PostgreSQL.
-    Intenta obtener las variables de entorno necesarias para conectarse,
-    y maneja errores si la conexión falla.
-    
-    Returns:
-        connection (psycopg2.extensions.connection): Objeto de conexión a la base de datos.
-        
-    Raises:
-        psycopg2.Error: Si hay un error específico de conexión a la base de datos.
-        Exception: Si ocurre un error general durante la conexión.
     """
     try:
         connection = psycopg2.connect(
-            host=os.getenv("DB_HOST", "localhost"),
+           host=os.getenv("DB_HOST", "localhost"),
             user=os.getenv("DB_USER"),
             password=os.getenv("DB_PASSWORD"),
-            dbname=os.getenv("DB_NAME"),
+            database=os.getenv("DB_DATABASE"),
             port=os.getenv("DB_PORT", 5432)
         )
-        print("Conexión exitosa a la base de datos PostgreSQL.")
+        print("Conexión exitosa a la base de datos ictus_db.")
         return connection
 
     except psycopg2.Error as err:

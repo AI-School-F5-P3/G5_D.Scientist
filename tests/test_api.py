@@ -1,48 +1,35 @@
-import pytest
-from httpx import AsyncClient
-from api import app  # Asegúrate de que `app` se importe correctamente desde `api.py`
-from httpx import ASGITransport
+import unittest
+from fastapi.testclient import TestClient
+import sys
+import os
 
-@pytest.mark.asyncio
-async def test_root():
-    """
-    Verifica que la ruta raíz (/) devuelva un código de estado 200.
-    """
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as ac:
-        response = await ac.get("/")
-    assert response.status_code == 200
-    assert response.json() == {"message": "API de predicción de ictus. Visita /docs para la documentación."}
+# Añadir el directorio raíz al path de Python
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-@pytest.mark.asyncio
-async def test_predict_endpoint():
-    """
-    Verifica que la ruta /predict procesa los datos y devuelve una predicción.
-    Primero, se autentica para obtener un token de acceso válido.
-    """
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as ac:
-        auth_data = {
-            "username": "admin@test.com",  # Email del usuario administrador
-            "password": "password"         # Contraseña correspondiente
-        }
-        auth_response = await ac.post("/token", data=auth_data)
+from api import app
 
-        assert auth_response.status_code == 200
-        access_token = auth_response.json().get("access_token")
-        assert access_token is not None
+class TestAPI(unittest.TestCase):
+    def setUp(self):
+        self.client = TestClient(app)
 
+    def test_root(self):
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"message": "Bienvenido a la API de predicción de ictus"})
+
+    def test_predict_stroke(self):
         test_data = {
             "gender": "Male",
-            "age": 70,
+            "age": 65,
             "hypertension": True,
             "heart_disease": False,
-            "avg_glucose_level": 100.5,
-            "smoking_status": "never smoked"
+            "avg_glucose_level": 100,
+            "smoking_status": "formerly smoked"
         }
+        response = self.client.post("/predict", json=test_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("prediction", response.json())
+        self.assertIn("usuario_id", response.json())
 
-        headers = {"Authorization": f"Bearer {access_token}"}
-        response = await ac.post("/predict", json=test_data, headers=headers)
-
-        assert response.status_code == 200
-        assert "prediction" in response.json()
+if __name__ == '__main__':
+    unittest.main()

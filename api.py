@@ -1,111 +1,87 @@
-from fastapi import FastAPI, HTTPException, Depends, status
-from fastapi.security import OAuth2PasswordRequestForm
-from pydantic import BaseModel, Field
-from auth.auth_bearer import get_current_user
-from auth.auth_handler import create_access_token
-from database.db_operations import insert_prediction, get_user_by_email  # Asume que esta función existe aquí
-from passlib.context import CryptContext
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from typing import Optional
-import logging
-import os
-
-# Inicializa el logger
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Configura el contexto de encriptación para contraseñas
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+from fastapi import FastAPI
+from pydantic import BaseModel
+import joblib
+import pandas as pd
+import numpy as np
+from database.db_operations import insert_prediction
 
 app = FastAPI()
 
-# Endpoint raíz para verificar el estado de la API
-@app.get("/")
-async def root():
-    return {"message": "API de predicción de ictus. Visita /docs para la documentación."}
+# Cargar el modelo
+model = joblib.load('model/best_ensemble_model.joblib')
 
-# Modelo de solicitud para la predicción
-class PredictionRequest(BaseModel):
+# Definir el orden correcto de las columnas
+column_order = ['gender', 'age', 'hypertension', 'heart_disease', 'avg_glucose_level', 'smoking_status', 'age_squared', 'glucose_age_interaction']
+
+# Mapeo manual para variables categóricas
+gender_map = {'Male': 0, 'Female': 1}
+smoking_status_map = {'formerly smoked': 0, 'never smoked': 1, 'smokes': 2}
+
+class StrokeData(BaseModel):
     gender: str
-    age: int
+    age: float
     hypertension: bool
     heart_disease: bool
     avg_glucose_level: float
     smoking_status: str
 
-# Definición de la función para generar PDF
-def generate_pdf(data, prediction, user_data=None):
-    pdf_path = "prediction_report.pdf"  # Cambiado a un directorio válido en Windows
-    c = canvas.Canvas(pdf_path, pagesize=letter)
-    textobject = c.beginText()
-    textobject.setTextOrigin(50, 750)
-    textobject.setFont("Helvetica", 12)
+@app.get("/")
+async def root():
+    return {"message": "Bienvenido a la API de predicción de ictus, entra en /docs ."}
 
-    lines = ["Resultado de Predicción de Ictus", "-------------------------------"]
-    if user_data:
-        lines += [
-            f"ID: {user_data.get('id', '')}",
-            f"Nombre: {user_data.get('nombre', '')}",
-            f"Apellido: {user_data.get('apellido', '')}",
-            f"Email: {user_data.get('email', '')}",
-            f"Género: {user_data.get('gender', '')}",
-            f"Edad: {user_data.get('edad', '')}",
-            f"Población: {user_data.get('poblacion', '')}",
-            f"Teléfono: {user_data.get('telefono', '')}",
-            ""
-        ]
-    lines += [
-        f"Género: {data.gender}",
-        f"Edad: {data.age}",
-        f"Hipertensión: {'Sí' if data.hypertension else 'No'}",
-        f"Enfermedad cardíaca: {'Sí' if data.heart_disease else 'No'}",
-        f"Nivel promedio de glucosa: {data.avg_glucose_level}",
-        f"Estatus de fumador: {data.smoking_status}",
-        "",
-        f"Resultado de la predicción: {prediction}"
-    ]
-
-    for line in lines:
-        textobject.textLine(line)
-
-    c.drawText(textobject)
-    c.save()
-    return pdf_path
-
-
-# Definición de la función de envío de email con PDF
-def send_email_with_pdf(email, pdf_path):
-    # Implementa la lógica para enviar el PDF adjunto por correo
-    pass  # Esta función debe implementarse según tus necesidades
-
-# Endpoint para generar el token de autenticación
-@app.post("/token")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = get_user_by_email(form_data.username)  # Asume que existe esta función para obtener el usuario
-    if not user or not pwd_context.verify(form_data.password, user["contrasena"]):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas")
-    access_token = create_access_token(data={"sub": user["email"], "id": user["id"]})
-    return {"access_token": access_token, "token_type": "bearer"}
-
-# Endpoint de predicción
 @app.post("/predict")
-async def predict(data: PredictionRequest, current_user: Optional[dict] = Depends(get_current_user)):
-    prediction = "Alto riesgo"
-    logger.info(f"Prediction result: {prediction}")
+async def predict_stroke(data: StrokeData):
+    # Crear un DataFrame con los datos de entrada
+    input_data = pd.DataFrame([[
+        data.gender,
+        data.age,
+        data.hypertension,
+        data.heart_disease,
+        data.avg_glucose_level,
+        data.smoking_status
+    ]], columns=['gender', 'age', 'hypertension', 'heart_disease', 'avg_glucose_level', 'smoking_status'])
 
-    # Usar "usuario_id" en lugar de "datos_sensibles_id"
-    prediction_data = (
-        current_user["id"] if current_user else None,
-        data.gender, data.age, data.hypertension,
-        data.heart_disease, data.avg_glucose_level, data.smoking_status, prediction
+    # Aplicar mapeo manual
+    input_data['gender'] = input_data['gender'].map(gender_map)
+    input_data['smoking_status'] = input_data['smoking_status'].map(smoking_status_map)
+
+    # Convertir valores booleanos a enteros
+    input_data['hypertension'] = input_data['hypertension'].astype(int)
+    input_data['heart_disease'] = input_data['heart_disease'].astype(int)
+
+    # Crear las características adicionales
+    input_data['age_squared'] = input_data['age'] ** 2
+    input_data['glucose_age_interaction'] = input_data['age'] * input_data['avg_glucose_level']
+
+    # Asegurar que no hay valores NaN
+    input_data = input_data.fillna(0)
+
+    # Asegurar el orden correcto de las columnas
+    input_data = input_data.reindex(columns=column_order)
+
+    # Realizar la predicción
+    probability = model.predict_proba(input_data)[0][1]
+    prediction_percentage = int(round(probability * 100))
+
+    # Eliminar los últimos ceros
+    prediction_str = str(prediction_percentage)
+    prediction_str = prediction_str.rstrip('0')
+    if prediction_str.endswith('.'):
+        prediction_str = prediction_str[:-1]
+    
+    # Guardar la predicción en la base de datos
+    usuario_id = insert_prediction(
+        data.gender,
+        data.age,
+        data.hypertension,
+        data.heart_disease,
+        data.avg_glucose_level,
+        data.smoking_status,
+        prediction_str
     )
-    insert_prediction(prediction_data)
 
-    pdf_path = generate_pdf(data, prediction, user_data=current_user)
-    if current_user:
-        send_email_with_pdf(current_user["email"], pdf_path)
-        os.remove(pdf_path)
+    return {"prediction": prediction_str, "usuario_id": usuario_id}
 
-    return {"message": "Predicción completada", "prediction": prediction}
-
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)

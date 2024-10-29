@@ -1,0 +1,139 @@
+body {
+    background-image: url('media/neuronal_connections.jpg');
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    margin: 0;
+    padding: 0;
+}
+
+.gradio-container {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.video-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    display: block;
+}
+
+.center-text {
+    text-align: center;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 5px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.logo-text {
+    margin-left: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.info-image {
+    width: 300px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.image-caption {
+    text-align: center;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* Estilos para la interfaz de predicción */
+.gradio-row {
+    margin-bottom: 20px;
+}
+
+.gradio-slider input[type="range"] {
+    width: 100%;
+}
+
+.gradio-radio label, .gradio-checkbox label {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.gradio-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.gradio-button:hover {
+    background-color: #0056b3;
+}
+
+.gradio-textbox {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para los bordes inferiores */
+.gradio-container::after {
+    content: '';
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background: linear-gradient(to right, 
+        #ff0000, #ff7f00, #ffff00, #00ff00, 
+        #0000ff, #4b0082, #9400d3);
+    opacity: 0.7;
+}
+
+.main-video {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    display: block;
+}
+
+.info-image {
+    width: 300px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.image-caption {
+    text-align: center;
+    font-weight: bold;
+    margin-top: 10px;
+}
+/* Ocultar opciones de pantalla completa y descarga para imágenes */
+.info-image .fixed-top-right {
+    display: none !important;
+}
+
+/* Asegurarse de que las imágenes no sean interactivas */
+.info-image img {
+    pointer-events: none;
+}
