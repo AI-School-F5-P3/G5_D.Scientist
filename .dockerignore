@@ -1,0 +1,40 @@
+# Directorios de desarrollo
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Directorios de datos y logs
+logs/
+*.log
+data/*.csv
+mlruns/
+models/*.joblib
+
+# Directorios de pruebas y documentación
+tests/
+documentation/
+
+# Directorios de control de versiones
+.git
+.gitignore
+
+# Directorios de IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Archivos de Docker
+Dockerfile
+docker-compose.yml
