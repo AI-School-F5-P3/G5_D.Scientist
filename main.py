@@ -29,6 +29,7 @@ column_order = ['gender', 'age', 'hypertension', 'heart_disease', 'avg_glucose_l
 gender_map = {'Male': 0, 'Female': 1}
 smoking_status_map = {'formerly smoked': 0, 'never smoked': 1, 'smokes': 2}
 
+# Función que realiza la predicción de ictus basada en los datos de entrada.
 def predict_stroke(gender, age, hypertension, heart_disease, avg_glucose_level, smoking_status):
     # Crear un DataFrame con los datos de entrada
     input_data = pd.DataFrame([[gender, age, hypertension, heart_disease, avg_glucose_level, smoking_status]],
@@ -62,14 +63,26 @@ def predict_stroke(gender, age, hypertension, heart_disease, avg_glucose_level, 
     # Devolver el resultado
     return f"La probabilidad de sufrir un ictus es: {prediction_percentage}%"
 
+    # Crea el encabezado de la página con el logo y el título del proyecto.
 def create_header():
-    return gr.Row([
+    
+    # Un objeto `gr.Row` que contiene el logo y el título.
+    return gr.Row([   
+
+        # Imagen del logo      
         gr.Image("media/neuro.png", show_label=False, width=50, height=50, interactive=False),
+
+        # Título del proyecto
         gr.Markdown("# NeuroPredict", elem_classes=["logo-text"])
     ], elem_classes=["header"])
 
+    # Crea la página de inicio con un video, imágenes y texto descriptivo.
 def create_home_page():
+
+    # Rutas de las imágenes a mostrar
     image_paths = ["media/ictus_4.jpeg", "media/ictus_2.jpg", "media/ictus_3.jpeg", "media/ictus_5.jpeg", "media/ictus_6.jpeg"]
+    
+    # Textos descriptivos para las imágenes
     captions = [
         "Prevención del ictus: Mantén un estilo de vida saludable",
         "Factores de riesgo: Conoce lo que puede aumentar tus probabilidades",
@@ -78,29 +91,50 @@ def create_home_page():
         "Alegria: Sobre todo no te olvides de SONREIR y dejar el estrés a un lado"
     ]
 
+    # Ciclo infinito de imágenes y textos descriptivos
     image_caption_cycle = itertools.cycle(zip(image_paths, captions))
 
     def update_image_and_caption():
+
+        """
+        Actualiza la imagen y el texto descriptivo cada 5 segundos.
+        """ 
         return next(image_caption_cycle)
 
     with gr.Blocks() as home:
+        
+        # Agregar el encabezado
         create_header()
+
+        # Agregar un video que se reproduce automáticamente
         gr.Video("media/ictus_video.mp4", autoplay=True, loop=True, show_label=False, width=800, elem_classes=["main-video"])
+        
+        # Título de bienvenida
         gr.Markdown("# Bienvenido al Predictor de Riesgo de Ictus", elem_classes=["center-text"])
         
         with gr.Row():
+
+            # Imagen inicial y texto descriptivo
             image = gr.Image(value=image_paths[0], show_label=False, interactive=False, elem_classes=["info-image"])
             caption = gr.Markdown(value=captions[0], elem_classes=["image-caption"])
         
+        # Texto que indica deslizar para ver más información
         gr.Markdown("Desliza para ver más información sobre el ictus", elem_classes=["center-text"])
 
+        # Actualizar la imagen y el texto descriptivo cada 5 segundos
         home.load(update_image_and_caption, outputs=[image, caption], every=5)
 
     return home
 
+    # Crea la interfaz para realizar la predicción del riesgo de ictus.
 def create_prediction_interface():
+
     with gr.Blocks() as prediction:
+
+        # Agregar el encabezado
         create_header()
+
+        # Título de la sección de predicción
         gr.Markdown("## Predicción de Riesgo de Ictus")
         with gr.Row():
             with gr.Column():
@@ -114,6 +148,7 @@ def create_prediction_interface():
             with gr.Column():
                 output = gr.Textbox(label="Resultado de la predicción")
         
+        # Configurar el botón para realizar la predicción
         predict_button.click(
             predict_stroke,
             inputs=[gender, age, hypertension, heart_disease, avg_glucose_level, smoking_status],
@@ -121,6 +156,7 @@ def create_prediction_interface():
         )
     return prediction
 
+# Crea la página con información detallada sobre el ictus.
 def create_info_page():
     with gr.Blocks() as info:
         create_header()
